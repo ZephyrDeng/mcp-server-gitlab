@@ -4,7 +4,7 @@ import { GitlabGetUserTasksTool } from "./tools/GitlabGetUserTasksTool";
 import { GitlabRawApiTool } from "./tools/GitlabRawApiTool";
 import { GitlabSearchUserProjectsTool } from "./tools/GitlabSearchUserProjectsTool";
 import { GitlabSearchProjectDetailsTool } from "./tools/GitlabSearchProjectDetailsTool";
-import type { FastMCP, Tool } from 'fastmcp'
+import type { FastMCP } from 'fastmcp'
 
 export const registerTools = (server: FastMCP) => {
   server.addTool(GitlabAcceptMRTool)
