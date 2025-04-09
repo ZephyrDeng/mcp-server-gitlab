@@ -1,0 +1,7 @@
+[install]
+# 设置 npm registry
+registry = "https://registry.npmjs.org"
+
+# 设置特定 scope 的 registry
+["install.scopes"]
+"@zephyr-mcp" = { registry = "https://registry.npmjs.org" } 

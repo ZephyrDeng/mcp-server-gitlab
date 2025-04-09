@@ -1,0 +1,63 @@
+{
+  "name": "@zephyr-mcp/gitlab",
+  "version": "0.0.2",
+  "description": "基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供与 GitLab 实例的强大集成能力",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "gitlab-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "bun run clean && tsc && mcp-build && chmod +x dist/index.js",
+    "postbuild": "bun scripts/postbuild.js",
+    "start": "bun run build && bun dist/index.js",
+    "dev": "concurrently \"bun run watch\" \"nodemon --watch dist --delay 500ms --exec 'bun run start'\"",
+    "preinspect": "bun run build",
+    "inspect": "bun x @modelcontextprotocol/inspector bun dist/index.js",
+    "deploy": "smithery deploy"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.17.16",
+    "axios": "^1.8.4",
+    "dotenv": "^16.4.7",
+    "mcp-framework": "^0.2.11"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.7.0",
+    "@smithery/cli": "latest",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.11.24",
+    "concurrently": "^9.1.2",
+    "jest": "^29.7.0",
+    "mcps-logger": "^1.0.0",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.3.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.19.0"
+  },
+  "smithery": {
+    "configFile": "./smithery.json"
+  },
+  "keywords": [
+    "gitlab",
+    "mcp",
+    "model-context-protocol",
+    "restful",
+    "api",
+    "claude",
+    "anthropic",
+    "smithery"
+  ],
+  "author": "Zephyr Deng",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}

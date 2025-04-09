@@ -1,0 +1,31 @@
+{
+  "name": "gitlab-mcp",
+  "displayName": "GitLab MCP",
+  "description": "基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供与 GitLab 实例的强大集成能力",
+  "version": "0.0.3",
+  "author": "Zephyr Deng",
+  "license": "MIT",
+  "type": "tool",
+  "category": "productivity",
+  "tags": ["gitlab", "devops", "api", "collaboration"],
+  "logo": "https://about.gitlab.com/images/press/logo/svg/gitlab-icon-rgb.svg",
+  "repository": "https://github.com/zephyr-dh/mcp-server-gitlab",
+  "env": {
+    "GITLAB_TOKEN": {
+      "description": "GitLab 访问令牌",
+      "required": true,
+      "secret": true
+    },
+    "GITLAB_API_URL": {
+      "description": "GitLab 实例 URL (例如: gitlab.com)",
+      "required": true
+    }
+  },
+  "documentation": {
+    "usage": "./USAGE.md"
+  },
+  "entry": {
+    "command": "node",
+    "args": ["dist/index.js"]
+  }
+} 
