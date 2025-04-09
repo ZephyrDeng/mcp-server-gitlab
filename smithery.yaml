@@ -1,0 +1,30 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      GITLAB_API_URL:
+        type: string
+        description: "GitLab API 的基础 URL"
+      GITLAB_TOKEN:
+        type: string
+        description: "用于验证 GitLab API 请求的访问令牌"
+    required: ["GITLAB_API_URL", "GITLAB_TOKEN"]
+  commandFunction: |
+    function getStartCommand(config) {
+      const env = {
+        ...process.env,
+        GITLAB_API_URL: config.GITLAB_API_URL,
+        GITLAB_TOKEN: config.GITLAB_TOKEN,
+      };
+      
+      return {
+        command: "bun",
+        args: ["dist/index.js"],
+        env
+      };
+    }
+
+build:
+  dockerfile: "Dockerfile"
+  dockerBuildPath: "." 

@@ -1,5 +1,8 @@
 # @zephyr-mcp/gitlab
 
+[![MCP Server](https://img.shields.io/badge/MCP-Server-blue)](https://modelcontextprotocol.github.io/specification/)
+[![Available on Smithery](https://img.shields.io/badge/Available%20on-Smithery-5D34B4.svg)](https://smithery.ai/registry/@zephyr-mcp/gitlab)
+
 基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供多种 GitLab RESTful API 工具，支持 Claude、Smithery 等平台集成。
 
 ## 功能概览
@@ -80,9 +83,17 @@ tsconfig.json
 
 ### Smithery
 
+在 Smithery 平台上直接使用：
+
 ```bash
-smithery install @zephyr-mcp/gitlab
+smithery add @zephyr-mcp/gitlab
 ```
+
+或者在 Smithery 用户界面中搜索 "@zephyr-mcp/gitlab" 并添加到您的工作空间。
+
+配置参数：
+- `GITLAB_API_URL`: GitLab API 的基础 URL
+- `GITLAB_TOKEN`: 用于验证 GitLab API 请求的访问令牌
 
 ## 相关链接
 
