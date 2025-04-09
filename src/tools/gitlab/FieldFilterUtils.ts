@@ -1,6 +1,4 @@
-import { z } from "zod";
-
-export function filterResponseFields(data: any, fields: string[]): any {
+export function filterResponseFields(data: any, fields: string[]) {
   const result: Record<string, any> = {};
   for (const path of fields) {
     const value = getValueByPath(data, path);
@@ -9,7 +7,7 @@ export function filterResponseFields(data: any, fields: string[]): any {
   return result;
 }
 
-function getValueByPath(obj: any, path: string): any {
+function getValueByPath(obj: any, path: string) {
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
   let current = obj;
   for (const part of parts) {

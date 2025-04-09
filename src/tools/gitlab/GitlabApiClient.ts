@@ -1,13 +1,21 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
-import { logger } from "mcp-framework";
 import { GitlabApiResponse } from "./GitlabApiTypes";
 import { GitlabConfig } from "../../config/GitlabConfig";
+
+export interface LoggerLike {
+  info: (...args: any[]) => void;
+  warn: (...args: any[]) => void;
+  error: (...args: any[]) => void;
+  debug: (...args: any[]) => void;
+}
 
 export class GitlabApiClient {
   private client: AxiosInstance;
   private config: GitlabConfig;
+  private logger: LoggerLike;
 
-  constructor(config: GitlabConfig) {
+  constructor(config: GitlabConfig, logger: LoggerLike = console) {
+    this.logger = logger;
     this.config = config;
     this.client = this.createApiClient();
   }
@@ -24,14 +32,14 @@ export class GitlabApiClient {
       },
     };
 
-    logger.info(`创建 GitLab API 客户端，基础 URL: ${normalizedBaseUrl}`);
+    this.logger.info(`创建 GitLab API 客户端，基础 URL: ${normalizedBaseUrl}`);
     return axios.create(axiosConfig);
   }
 
   private normalizeBaseUrl(url: string): string {
     let normalizedUrl = String(url).trim();
     if (!normalizedUrl) {
-      logger.warn('空的 GitLab URL，使用默认值');
+      this.logger.warn('空的 GitLab URL，使用默认值');
       return 'https://gitlab.com/api/v4';
     }
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
@@ -51,7 +59,7 @@ export class GitlabApiClient {
       if (endpoint && !endpoint.startsWith('/')) {
         endpoint = `/${endpoint}`;
       }
-      logger.info(`执行 GitLab API 请求：${method} ${endpoint}`);
+      this.logger.info(`执行 GitLab API 请求：${method} ${endpoint}`);
       const response = await this.client.request({
         url: endpoint,
         method,

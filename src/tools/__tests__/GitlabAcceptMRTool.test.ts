@@ -1,7 +1,21 @@
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { gitlabApiClient } from '../../utils/gitlabApiClientInstance';
 import { GitlabAcceptMRTool } from "../GitlabAcceptMRTool";
+import type { Context, ContentResult, TextContent } from 'fastmcp';
 
 describe("GitlabAcceptMRTool", () => {
-  const tool = new GitlabAcceptMRTool();
+  beforeEach(() => {
+    jest.spyOn(gitlabApiClient, 'apiRequest').mockResolvedValue({ id: 456, merged: true } as any);
+  });
+  const tool = GitlabAcceptMRTool;
+  const mockContext = {} as Context<Record<string, unknown> | undefined>;
+
+  beforeEach(() => {
+    jest.restoreAllMocks();
+    // @ts-ignore
+    (tool as any).apiClient = { apiRequest: jest.fn().mockResolvedValue({ id: 456, merged: true }) };
+    jest.spyOn(gitlabApiClient, 'apiRequest').mockResolvedValue({ id: 456, merged: true } as any);
+  });
 
   it("should have correct metadata", () => {
     expect(tool.name).toBe("Gitlab Accept MR Tool");
@@ -10,102 +24,103 @@ describe("GitlabAcceptMRTool", () => {
 
   it("should accept merge request with example params", async () => {
     const mockResponse = { id: 456, merged: true };
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockResolvedValue(mockResponse);
+    // mock 已在 beforeEach 中设置
 
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(result).toEqual(mockResponse);
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toEqual({
+      content: [{ type: "text", text: JSON.stringify(mockResponse) }]
+    });
   });
 
   it("should handle api error gracefully", async () => {
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockRejectedValue(new Error("API error"));
+    jest.spyOn(gitlabApiClient, "apiRequest").mockRejectedValue(new Error("API error"));
   
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result[0].text).toContain("GitLab MCP 工具调用异常");
-    expect(result[0].text).toContain("API error");
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toHaveProperty('content');
+    expect(result).toHaveProperty('isError', true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
+    expect((result.content[0] as TextContent).text).toContain("API error");
   });
 
   it("should handle 404 not found error", async () => {
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockRejectedValue(new Error("404 Project Not Found"));
+    jest.spyOn(gitlabApiClient, "apiRequest").mockRejectedValue(new Error("404 Project Not Found"));
 
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result[0].text).toContain("GitLab MCP 工具调用异常");
-    expect(result[0].text).toContain("404 Project Not Found");
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toHaveProperty('content');
+    expect(result).toHaveProperty('isError', true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
+    expect((result.content[0] as TextContent).text).toContain("404 Project Not Found");
   });
 
   it("should handle 403 forbidden error", async () => {
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockRejectedValue(new Error("403 Forbidden"));
+    jest.spyOn(gitlabApiClient, "apiRequest").mockRejectedValue(new Error("403 Forbidden"));
 
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result[0].text).toContain("GitLab MCP 工具调用异常");
-    expect(result[0].text).toContain("403 Forbidden");
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toHaveProperty('content');
+    expect(result).toHaveProperty('isError', true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
+    expect((result.content[0] as TextContent).text).toContain("403 Forbidden");
   });
 
   it("should handle 409 merge conflict error", async () => {
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockRejectedValue(new Error("409 Merge Conflict"));
+    jest.spyOn(gitlabApiClient, "apiRequest").mockRejectedValue(new Error("409 Merge Conflict"));
 
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result[0].text).toContain("GitLab MCP 工具调用异常");
-    expect(result[0].text).toContain("409 Merge Conflict");
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toHaveProperty('content');
+    expect(result).toHaveProperty('isError', true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
+    expect((result.content[0] as TextContent).text).toContain("409 Merge Conflict");
   });
 
   it("should handle 500 internal server error", async () => {
-    jest.spyOn((tool as any).apiClient, "apiRequest").mockRejectedValue(new Error("500 Internal Server Error"));
+    jest.spyOn(gitlabApiClient, "apiRequest").mockRejectedValue(new Error("500 Internal Server Error"));
 
     const params = {
       projectId: "123",
       mergeRequestId: 456,
       mergeOptions: {
-        squash: true,
-        merge_when_pipeline_succeeds: false
+        squash: true
       }
     };
-    const result = await tool.execute(params);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result[0].text).toContain("GitLab MCP 工具调用异常");
-    expect(result[0].text).toContain("500 Internal Server Error");
+    const result = await tool.execute(params, mockContext) as ContentResult;
+    expect(result).toHaveProperty('content');
+    expect(result).toHaveProperty('isError', true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
+    expect((result.content[0] as TextContent).text).toContain("500 Internal Server Error");
   });
 });

@@ -1,45 +1,63 @@
-import { MCPTool } from "mcp-framework";
 import { z } from "zod";
-import { GitlabApiClient } from "./gitlab/GitlabApiClient";
-import { GitlabConfig } from "../config/GitlabConfig";
+import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createFieldsSchema } from '../utils/zodSchemas'
+import type { Tool, ContentResult, Context } from 'fastmcp';
+import { filterResponseFields } from '../tools/gitlab/FieldFilterUtils'
 
-interface GitlabSearchUserProjectsInput {
-  username: string;
-  fields?: string[] | string;
-}
+export const GitlabSearchUserProjectsTool: Tool<Record<string, unknown> | undefined> = {
+  name: "Gitlab Search User Projects Tool",
+  description: "根据用户名搜索用户信息及其活跃项目。支持字段过滤，提升响应效率。",
+  parameters: z.object({
+    username: z.string().describe("用户名"),
+    fields: createFieldsSchema(),
+  }),
+  async execute(args: unknown, context: Context<Record<string, unknown> | undefined>) {
+    const typedArgs = args as {
+      username: string;
+      fields?: string[] | string;
+    };
 
-import { GitlabBaseTool } from "./GitlabBaseTool";
-
-export class GitlabSearchUserProjectsTool extends GitlabBaseTool<GitlabSearchUserProjectsInput> {
-  name = "Gitlab Search User Projects Tool";
-  description = `
-根据用户名搜索用户信息及其活跃项目。
-支持字段过滤，提升响应效率。
-`.trim();
-
-  schema = {
-    username: {
-      type: z.string(),
-      description: "用户名"
-    },
-    fields: {
-      type: z.union([z.array(z.string()), z.string()]).optional(),
-      description: "字段过滤，支持数组或逗号分隔字符串"
-    }
-  };
-
-  async execute(input: GitlabSearchUserProjectsInput): Promise<any> {
-    return this.safeExecute(async () => {
-      // 兼容字符串和数组
-      let fieldsArray: string[] | undefined;
-      if (typeof input.fields === 'string') {
-        fieldsArray = input.fields.split(',').map(s => s.trim()).filter(Boolean);
-      } else {
-        fieldsArray = input.fields;
+    try {
+      const users = await gitlabApiClient.apiRequest("/users", "GET", { search: typedArgs.username });
+      if (!Array.isArray(users) || users.length === 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `未找到用户名为 ${typedArgs.username} 的用户`
+            }
+          ],
+          isError: true
+        };
       }
+      
+      const user = users[0];
+      const projects = await gitlabApiClient.apiRequest(`/users/${user.id}/projects`, "GET", {});
+      const result = { user, projects };
 
-      // 这里可以将 fieldsArray 用于字段过滤，示例中暂未用到
-      return this.apiClient.apiRequest('/users', 'GET', { search: input.username });
-    });
-  }
-}
+      if (typedArgs.fields) {
+        const fieldsArray = Array.isArray(typedArgs.fields)
+          ? typedArgs.fields
+          : typedArgs.fields.split(",").map(f => f.trim()).filter(f => f);
+        const filteredResult = filterResponseFields(result, fieldsArray);
+        return {
+          content: [{ type: "text", text: JSON.stringify(filteredResult) }]
+        } as ContentResult;
+      } else {
+        return {
+          content: [{ type: "text", text: JSON.stringify(result) }]
+        } as ContentResult;
+      }
+    } catch (error: any) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `GitLab MCP 工具调用异常：${error?.message || String(error)}`
+          }
+        ],
+        isError: true
+      };
+    }
+  },
+};

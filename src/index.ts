@@ -1,26 +1,28 @@
-import { GitlabMCPServer } from "./server/GitlabMCPServer";
-import { GitlabRawApiTool } from "./tools/GitlabRawApiTool";
-import { GitlabAcceptMRTool } from "./tools/GitlabAcceptMRTool";
-import { GitlabCreateMRCommentTool } from "./tools/GitlabCreateMRCommentTool";
-import { GitlabGetUserTasksTool } from "./tools/GitlabGetUserTasksTool";
-import { GitlabSearchProjectDetailsTool } from "./tools/GitlabSearchProjectDetailsTool";
-import { GitlabSearchUserProjectsTool } from "./tools/GitlabSearchUserProjectsTool";
-// 使用自定义服务器
-const server = new GitlabMCPServer({
-    tools: [
-        new GitlabRawApiTool(),
-        new GitlabAcceptMRTool(),
-        new GitlabCreateMRCommentTool(),
-        new GitlabGetUserTasksTool(),
-        new GitlabSearchProjectDetailsTool(),
-        new GitlabSearchUserProjectsTool(),
-    ]
+#!/usr/bin/env node
+/**
+ * GitLab MCP Server 基于 fastmcp 的实现
+ *
+ * 提供 GitLab 多种 API 工具，支持 Claude、Smithery 等客户端调用
+ */
+
+import { FastMCP } from "fastmcp";
+
+// GitLab 相关工具
+import { registerTools } from "./tools";
+
+
+// 创建 FastMCP 服务器实例
+const server = new FastMCP({
+  name: "GitLab MCP Server",
+  version: "1.0.0",
 });
 
-// 启动服务器
-server.start();
+// 注册示范资源：GitLab 所有项目
 
-// 处理关闭信号
-process.on("SIGINT", async () => {
-  await server.stop();
+// 注册 GitLab 相关工具
+registerTools(server)
+
+// 启动 MCP 服务器，使用 stdio 传输
+server.start({
+  transportType: "stdio",
 });

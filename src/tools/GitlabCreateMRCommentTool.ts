@@ -1,46 +1,51 @@
-import { MCPTool } from "mcp-framework";
 import { z } from "zod";
-import { GitlabApiClient } from "./gitlab/GitlabApiClient";
-import { GitlabConfig } from "../config/GitlabConfig";
+import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { filterResponseFields } from "./gitlab/FieldFilterUtils";
+import type { Tool, ContentResult, Context } from 'fastmcp';
 
-interface GitlabCreateMRCommentInput {
-  projectId: string;
-  mergeRequestId: number;
-  comment: string;
-}
-
-import { GitlabBaseTool } from "./GitlabBaseTool";
-
-export class GitlabCreateMRCommentTool extends GitlabBaseTool<GitlabCreateMRCommentInput> {
-  name = "Gitlab Create MR Comment Tool";
-  description = `
-为指定项目的合并请求添加评论。
-需提供项目 ID、合并请求 ID 和评论内容。
-`.trim();
-
-  schema = {
-    projectId: {
-      type: z.string(),
-      description: "项目 ID"
-    },
-    mergeRequestId: {
-      type: z.number(),
-      description: "合并请求 ID"
-    },
-    comment: {
-      type: z.string(),
-      description: "评论内容"
+export const GitlabCreateMRCommentTool: Tool<Record<string, unknown> | undefined> = {
+  name: "Gitlab Create MR Comment Tool",
+  description: "为指定项目的合并请求添加评论。",
+  parameters: z.object({
+    projectId: z.string().describe("项目 ID"),
+    mergeRequestId: z.number().describe("合并请求 ID"),
+    comment: z.string().describe("评论内容"),
+    fields: z.array(z.string()).optional().describe("需要返回的字段路径数组"),
+  }),
+  async execute(args: unknown, context: Context<Record<string, unknown> | undefined>) {
+    const typedArgs = args as {
+      projectId: string;
+      mergeRequestId: number;
+      comment: string;
+      fields?: string[];
+    };
+    
+    const { projectId, mergeRequestId, comment, fields } = typedArgs;
+    const endpoint = `/projects/${encodeURIComponent(projectId)}/merge_requests/${mergeRequestId}/notes`;
+    
+    try {
+      const response = await gitlabApiClient.apiRequest(endpoint, "POST", undefined, { body: comment });
+      
+      if (fields) {
+        const filteredResponse = filterResponseFields(response, fields);
+        return {
+          content: [{ type: "text", text: JSON.stringify(filteredResponse) }]
+        } as ContentResult;
+      }
+      
+      return {
+        content: [{ type: "text", text: JSON.stringify(response) }]
+      } as ContentResult;
+    } catch (error: any) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `GitLab MCP 工具调用异常：${error?.message || String(error)}`
+          }
+        ],
+        isError: true
+      };
     }
-  };
-
-  async execute(input: GitlabCreateMRCommentInput): Promise<any> {
-    return this.safeExecute(async () => {
-      return this.apiClient.apiRequest(
-        `/projects/${encodeURIComponent(input.projectId)}/merge_requests/${input.mergeRequestId}/notes`,
-        'POST',
-        undefined,
-        { body: input.comment }
-      );
-    });
   }
-}
+};
