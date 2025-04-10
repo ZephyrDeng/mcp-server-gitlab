@@ -9,6 +9,8 @@ A GitLab integration server built on the fastmcp framework, providing various Gi
 - **GitlabSearchProjectDetailsTool**: Search projects and details
 - **GitlabCreateMRCommentTool**: Add comments to merge requests
 - **GitlabAcceptMRTool**: Accept and merge merge requests
+- **GitlabUpdateMRTool**: Update merge request assignee, reviewers, title, description, and labels
+- **GitlabCreateMRTool**: Create a new merge request with assignee and reviewers
 - **GitlabRawApiTool**: Call any GitLab API with custom parameters
 
 ## Quick Start

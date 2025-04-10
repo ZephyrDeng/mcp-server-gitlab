@@ -38,6 +38,11 @@ describe("filterResponseFields", () => {
       },
     });
   });
+  it("should return original data if any field path does not exist", () => {
+    const fields = ["id", "not_exist_field"];
+    const filtered = filterResponseFields(simpleMock, fields);
+    expect(filtered).toBe(simpleMock);
+  });
 });
 
 describe("filterResponseFields with complex MR list", () => {

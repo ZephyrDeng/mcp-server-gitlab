@@ -12,6 +12,8 @@
 - **GitlabSearchProjectDetailsTool**：搜索项目及详细信息
 - **GitlabCreateMRCommentTool**：为合并请求添加评论
 - **GitlabAcceptMRTool**：接受并合并合并请求
+- **GitlabUpdateMRTool**：更新 Merge Request 的指派人、评审人、标题、描述、标签
+- **GitlabCreateMRTool**：创建新的 Merge Request，支持指派 assignee 和 reviewers
 - **GitlabRawApiTool**：自定义调用任意 GitLab API
 
 ## 快速开始
