@@ -1,10 +1,27 @@
-export function filterResponseFields(data: any, fields: string[]) {
-  const result: Record<string, any> = {};
+/**
+ * 过滤响应字段
+ * @param data 需要过滤的数据
+ * @param fields 要保留的字段路径列表
+ * @returns 过滤后的数据，保留与指定字段路径匹配的值
+ */
+export function filterResponseFields<T>(data: T, fields: string[]): T extends any[] 
+  ? Array<Record<string, unknown>> 
+  : Record<string, unknown> {
+  // 处理数组情况，递归调用每个元素
+  if (Array.isArray(data)) {
+    const result = data.map((item) => filterResponseFields(item, fields));
+    return result as T extends any[] ? Array<Record<string, unknown>> : Record<string, unknown>;
+  }
+
+  // 处理普通对象
+  const result: Record<string, unknown> = {};
   for (const path of fields) {
     const value = getValueByPath(data, path);
-    setValueByPath(result, path, value === undefined ? {} : value);
+    if (value !== undefined) {
+      setValueByPath(result, path, value);
+    }
   }
-  return result;
+  return result as T extends any[] ? Array<Record<string, unknown>> : Record<string, unknown>;
 }
 
 function getValueByPath(obj: any, path: string) {

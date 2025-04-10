@@ -1,6 +1,10 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect } from "@jest/globals";
 import { filterResponseFields } from "../gitlab/FieldFilterUtils";
-import { simpleMock, nestedMock, complexMRsMock } from "./mocks/field_filter_mocks";
+import {
+  simpleMock,
+  nestedMock,
+  complexMRsMock,
+} from "./mocks/field_filter_mocks";
 
 describe("filterResponseFields", () => {
   it("should filter flat fields correctly", () => {
@@ -11,7 +15,7 @@ describe("filterResponseFields", () => {
       title: "Sample Title",
       state: "active",
       author: "tester",
-      created_at: "2025-01-01T00:00:00Z"
+      created_at: "2025-01-01T00:00:00Z",
     });
   });
 
@@ -21,41 +25,31 @@ describe("filterResponseFields", () => {
       "author.name",
       "reviewers[0].name",
       "reviewers[1].role",
-      "pipeline.stages[1].status"
+      "pipeline.stages[1].status",
     ];
 
     const filtered = filterResponseFields(nestedMock, fields);
     expect(filtered).toEqual({
       id: 200,
       author: { name: "userA" },
-      reviewers: [
-        { name: "reviewer1" },
-        { role: "dev" }
-      ],
+      reviewers: [{ name: "reviewer1" }, { role: "dev" }],
       pipeline: {
-        stages: [
-          {},
-          { status: "failed" }
-        ]
-      }
+        stages: [{}, { status: "failed" }],
+      },
     });
   });
 });
 
 describe("filterResponseFields with complex MR list", () => {
   it("should filter nested fields in MR array correctly", () => {
-    const fields = [
-      "id",
-      "title",
-      "state"
-    ];
-    const filtered = complexMRsMock.map(mr => filterResponseFields(mr, fields));
+    const fields = ["id", "title", "state"];
+    const filtered = filterResponseFields(complexMRsMock, fields);
     expect(filtered).toEqual([
       {
         id: 400,
         title: "Complex MR",
-        state: "pending"
-      }
+        state: "pending",
+      },
     ]);
   });
 });

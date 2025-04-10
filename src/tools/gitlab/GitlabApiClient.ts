@@ -12,12 +12,20 @@ export interface LoggerLike {
 export class GitlabApiClient {
   private client: AxiosInstance;
   private config: GitlabConfig;
-  private logger: LoggerLike;
+  private logger = {
+    info(...args: any[]) {},
+    warn(...args: any[]) {},
+    error(...args: any[]) {},
+    debug(...args: any[]) {},
+  };
 
-  constructor(config: GitlabConfig, logger: LoggerLike = console) {
-    this.logger = logger;
+  constructor(config: GitlabConfig) {
     this.config = config;
     this.client = this.createApiClient();
+  }
+
+  public setLogger(logger: LoggerLike) {
+    this.logger = logger
   }
 
   private createApiClient(): AxiosInstance {

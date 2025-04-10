@@ -1,9 +1,9 @@
-# @zephyr-mcp/gitlab
+[English Version](./README.en.md)
 
-[![MCP Server](https://img.shields.io/badge/MCP-Server-blue)](https://modelcontextprotocol.github.io/specification/)
-[![Available on Smithery](https://img.shields.io/badge/Available%20on-Smithery-5D34B4.svg)](https://smithery.ai/registry/@zephyr-mcp/gitlab)
+# mcp-gitlab MCP Server
+[![smithery badge](https://smithery.ai/badge/@ZephyrDeng/mcp-server-gitlab)](https://smithery.ai/server/@ZephyrDeng/mcp-server-gitlab)
 
-基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供多种 GitLab RESTful API 工具，支持 Claude、Smithery 等平台集成。
+基于 fastmcp 框架构建的 GitLab 集成服务器，提供多种 GitLab RESTful API 工具，支持 Claude、Smithery 等平台集成。
 
 ## 功能概览
 
@@ -18,13 +18,13 @@
 
 ```bash
 # 安装依赖
-npm install
+bun install
 
 # 构建项目
-npm run build
+bun run build
 
 # 启动服务
-npm run start
+bun run start
 ```
 
 ## 环境变量配置
@@ -75,7 +75,7 @@ tsconfig.json
   "mcpServers": {
     "@zephyr-mcp/gitlab": {
       "command": "npx",
-      "args": ["-y", "@zephyr-mcp/gitlab"]
+      "args": ["-y", "@zephyr-mcp/gitlab@0.0.4"]
     }
   }
 }
@@ -97,6 +97,6 @@ smithery add @zephyr-mcp/gitlab
 
 ## 相关链接
 
-- [MCP Framework](https://mcp-framework.com)
+- [fastmcp](https://github.com/punkpeye/fastmcp)
 - [Smithery](https://smithery.ai/docs)
 - [GitLab API](https://docs.gitlab.com/ee/api/rest/)

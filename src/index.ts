@@ -8,7 +8,7 @@
 import { FastMCP } from "fastmcp";
 
 // GitLab 相关工具
-import { registerTools } from "./tools";
+import { registerLogger, registerTools } from "./tools";
 
 
 // 创建 FastMCP 服务器实例
@@ -21,6 +21,7 @@ const server = new FastMCP({
 
 // 注册 GitLab 相关工具
 registerTools(server)
+registerLogger()
 
 // 启动 MCP 服务器，使用 stdio 传输
 server.start({
