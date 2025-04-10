@@ -77,21 +77,11 @@ tsconfig.json
   "mcpServers": {
     "@zephyr-mcp/gitlab": {
       "command": "npx",
-      "args": ["-y", "@zephyr-mcp/gitlab@0.0.4"]
+      "args": ["-y", "@zephyr-mcp/gitlab@0.1.0"]
     }
   }
 }
 ```
-
-### Smithery
-
-在 Smithery 平台上直接使用：
-
-```bash
-smithery add @zephyr-mcp/gitlab
-```
-
-或者在 Smithery 用户界面中搜索 "@zephyr-mcp/gitlab" 并添加到您的工作空间。
 
 配置参数：
 - `GITLAB_API_URL`: GitLab API 的基础 URL
