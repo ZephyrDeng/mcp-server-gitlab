@@ -1,30 +1,33 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
 startCommand:
   type: stdio
   configSchema:
+    # JSON Schema defining the configuration options for the MCP.
     type: object
+    required:
+      - gitlabApiUrl
+      - gitlabToken
     properties:
-      GITLAB_API_URL:
+      gitlabApiUrl:
         type: string
-        description: "GitLab API 的基础 URL"
-      GITLAB_TOKEN:
+        default: https://your-gitlab-instance.com
+        description: The URL for your GitLab API instance.
+      gitlabToken:
         type: string
-        description: "用于验证 GitLab API 请求的访问令牌"
-    required: ["GITLAB_API_URL", "GITLAB_TOKEN"]
-  commandFunction: |
-    function getStartCommand(config) {
-      const env = {
-        ...process.env,
-        GITLAB_API_URL: config.GITLAB_API_URL,
-        GITLAB_TOKEN: config.GITLAB_TOKEN,
-      };
-      
-      return {
-        command: "node",
-        args: ["dist/index.js"],
-        env
-      };
-    }
-
-build:
-  dockerfile: "Dockerfile"
-  dockerBuildPath: "." 
+        default: your_access_token
+        description: Personal access token for GitLab API authentication.
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        GITLAB_API_URL: config.gitlabApiUrl,
+        GITLAB_TOKEN: config.gitlabToken
+      }
+    })
+  exampleConfig:
+    gitlabApiUrl: https://your-gitlab-instance.com
+    gitlabToken: your_access_token
