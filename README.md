@@ -2,6 +2,8 @@
 
 # mcp-gitlab MCP Server
 [![smithery badge](https://smithery.ai/badge/@ZephyrDeng/mcp-server-gitlab)](https://smithery.ai/server/@ZephyrDeng/mcp-server-gitlab)
+[![MCP Server](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge)](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab)
+
 
 基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供多种 GitLab RESTful API 工具，支持 Claude、Smithery 等平台集成。
 

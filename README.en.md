@@ -1,5 +1,7 @@
 # mcp-gitlab MCP Server (English)
 
+[![MCP Server](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge)](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab)
+
 A GitLab integration server built on the fastmcp framework, providing various GitLab RESTful API tools. Supports integration with Claude, Smithery, and other platforms.
 
 ## Features
