@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.19.0'
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Create .env file
+        run: echo -e "GITLAB_TOLEM=glpat-xxx\nGITLAB_API_URL=https://gitlab.xxx.com" > .env
+
+      - name: Install dependencies
+        run: bun install
+
+      # 注意：单元测试已重构，不再依赖环境变量
+      # 所有的 API 调用都应当被模拟
+
+      - name: Build project
+        run: bun run build
+
+      - name: Run tests
+        run: bun test 

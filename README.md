@@ -1,8 +1,17 @@
 [English Version](./README.en.md)
 
-# mcp-gitlab MCP Server
+![](https://badge.mcpx.dev?type=server&features=tools 'MCP server with tools')
+[![Build Status](https://github.com/ZephyrDeng/mcp-server-gitlab/actions/workflows/ci.yml/badge.svg)](https://github.com/ZephyrDeng/mcp-server-gitlab/actions)
+[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![Node Version](https://img.shields.io/node/v/@zephyr-mcp/gitlab)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/@zephyr-mcp/gitlab)](https://npmjs.com/package/@zephyr-mcp/gitlab)
+[![Downloads](https://img.shields.io/npm/dm/@zephyr-mcp/gitlab)](https://npmjs.com/package/@zephyr-mcp/gitlab)
+[![GitHub release](https://img.shields.io/github/v/release/ZephyrDeng/mcp-server-gitlab)](https://github.com/ZephyrDeng/mcp-server-gitlab/releases)
+[![GitHub stars](https://img.shields.io/github/stars/ZephyrDeng/mcp-server-gitlab)](https://github.com/ZephyrDeng/mcp-server-gitlab/stargazers)
 [![smithery badge](https://smithery.ai/badge/@ZephyrDeng/mcp-server-gitlab)](https://smithery.ai/server/@ZephyrDeng/mcp-server-gitlab)
-[![MCP Server](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge)](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab)
+<a href="https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge" />
+</a>
 
 
 基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供多种 GitLab RESTful API 工具，支持 Claude、Smithery 等平台集成。

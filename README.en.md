@@ -1,6 +1,19 @@
-# mcp-gitlab MCP Server (English)
+[中文版](./README.md)
 
-[![MCP Server](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge)](https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab)
+![](https://badge.mcpx.dev?type=server&features=tools 'MCP server with tools')
+[![Build Status](https://github.com/ZephyrDeng/mcp-server-gitlab/actions/workflows/ci.yml/badge.svg)](https://github.com/ZephyrDeng/mcp-server-gitlab/actions)
+[![License](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![Node Version](https://img.shields.io/node/v/@zephyr-mcp/gitlab)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/@zephyr-mcp/gitlab)](https://npmjs.com/package/@zephyr-mcp/gitlab)
+[![Downloads](https://img.shields.io/npm/dm/@zephyr-mcp/gitlab)](https://npmjs.com/package/@zephyr-mcp/gitlab)
+[![GitHub release](https://img.shields.io/github/v/release/ZephyrDeng/mcp-server-gitlab)](https://github.com/ZephyrDeng/mcp-server-gitlab/releases)
+[![GitHub stars](https://img.shields.io/github/stars/ZephyrDeng/mcp-server-gitlab)](https://github.com/ZephyrDeng/mcp-server-gitlab/stargazers)
+[![smithery badge](https://smithery.ai/badge/@ZephyrDeng/mcp-server-gitlab)](https://smithery.ai/server/@ZephyrDeng/mcp-server-gitlab)
+<a href="https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@ZephyrDeng/mcp-server-gitlab/badge" />
+</a>
+
+# mcp-gitlab MCP Server (English)
 
 A GitLab integration server built on the fastmcp framework, providing various GitLab RESTful API tools. Supports integration with Claude, Smithery, and other platforms.
 

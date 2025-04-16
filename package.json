@@ -19,7 +19,7 @@
     "preinspect": "bun run build",
     "inspect": "bun x @modelcontextprotocol/inspector bun dist/index.js",
     "deploy": "smithery deploy",
-    "test": "bun x jest",
+    "test": "bun test",
     "test:watch": "jest --watch"
   },
   "dependencies": {
