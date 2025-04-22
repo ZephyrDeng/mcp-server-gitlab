@@ -13,8 +13,14 @@ describe("GitlabCreateMRCommentTool", () => {
     // @ts-ignore
     mockApiRequest = jest.fn().mockResolvedValue({ id: 1, body: '请尽快审核' });
     jest.spyOn(gitlabApiClient, 'apiRequest').mockImplementation(mockApiRequest);
+    // Add mocks for resolver and validator
+    jest.spyOn(gitlabApiClient, 'resolveProjectId').mockImplementation(async (idOrName) => {
+       if (idOrName === '123' || idOrName === 123 || idOrName === 'test-project') return 123;
+       return null;
+    });
+    jest.spyOn(gitlabApiClient, 'isValidResponse').mockReturnValue(true);
   });
-  
+
   it("should have correct metadata", () => {
     // Tool instance is created in beforeEach
     expect(GitlabCreateMRCommentTool.name).toBe("Gitlab Create MR Comment Tool");
@@ -23,77 +29,50 @@ describe("GitlabCreateMRCommentTool", () => {
 
   it("should create comment successfully", async () => {
     const mockResponse = { id: 1, body: "请尽快审核" };
-    // Mock should be set up by beforeEach
+    // Mocks are set up in beforeEach
 
     const params = {
-      projectId: "123",
+      projectId: "test-project", // Use name to test resolution
       mergeRequestId: 456,
       comment: "请尽快审核"
     };
     const result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
-    expect(result).toEqual({
-      content: [{ type: "text", text: JSON.stringify(mockResponse) }]
-    });
+    expect(result.isError).toBeFalsy();
+    expect(result.content[0].type).toBe("text");
+    expect(JSON.parse((result.content[0] as TextContent).text)).toEqual(mockResponse);
+    // Verify apiRequest was called with resolved ID
+    expect(gitlabApiClient.apiRequest).toHaveBeenCalledWith(
+      '/projects/123/merge_requests/456/notes', // Resolved project ID
+      'POST',
+      undefined,
+      { body: "请尽快审核" }
+    );
   });
 
   it("should handle api error gracefully", async () => {
     // Override the mock implementation for this specific test
-    mockApiRequest.mockRejectedValue(new Error("API error"));
+    // Test error during ID resolution
+    jest.spyOn(gitlabApiClient, "resolveProjectId").mockResolvedValue(null);
+    let params: any = { projectId: "invalid-project", mergeRequestId: 456, comment: "test" };
+    let result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
+    expect(result.isError).toBe(true);
+    expect((result.content[0] as TextContent).text).toContain("无法解析项目 ID 或名称：invalid-project");
 
-    const params = {
-      projectId: "123",
-      mergeRequestId: 456,
-      comment: "请尽快审核"
-    };
-    const result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
-    expect(result).toHaveProperty('content');
-    expect(result).toHaveProperty('isError', true);
+    // Reset mock and test error during API request
+    jest.spyOn(gitlabApiClient, "resolveProjectId").mockResolvedValue(123); // Make resolution succeed
+    mockApiRequest.mockRejectedValue(new Error("API error after resolution"));
+    params = { projectId: "123", mergeRequestId: 456, comment: "test" };
+    result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
+    expect(result.isError).toBe(true);
     expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
-    expect((result.content[0] as TextContent).text).toContain("API error");
-  });
+    expect((result.content[0] as TextContent).text).toContain("API error after resolution");
 
-  it("should handle 404 not found error", async () => {
-    mockApiRequest.mockRejectedValue(new Error("404 Project Not Found"));
-
-    const params = {
-      projectId: "123",
-      mergeRequestId: 456,
-      comment: "请尽快审核"
-    };
-    const result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
-    expect(result).toHaveProperty('content');
-    expect(result).toHaveProperty('isError', true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
-    expect((result.content[0] as TextContent).text).toContain("404 Project Not Found");
-  });
-
-  it("should handle 403 forbidden error", async () => {
-    mockApiRequest.mockRejectedValue(new Error("403 Forbidden"));
-
-    const params = {
-      projectId: "123",
-      mergeRequestId: 456,
-      comment: "请尽快审核"
-    };
-    const result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
-    expect(result).toHaveProperty('content');
-    expect(result).toHaveProperty('isError', true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
-    expect((result.content[0] as TextContent).text).toContain("403 Forbidden");
-  });
-
-  it("should handle 500 internal server error", async () => {
-    mockApiRequest.mockRejectedValue(new Error("500 Internal Server Error"));
-
-    const params = {
-      projectId: "123",
-      mergeRequestId: 456,
-      comment: "请尽快审核"
-    };
-    const result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
-    expect(result).toHaveProperty('content');
-    expect(result).toHaveProperty('isError', true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab MCP 工具调用异常");
-    expect((result.content[0] as TextContent).text).toContain("500 Internal Server Error");
+    // Test error response from API
+    mockApiRequest.mockResolvedValue({ error: true, message: "Cannot add comment" });
+    jest.spyOn(gitlabApiClient, 'isValidResponse').mockReturnValue(false); // Ensure isValidResponse reflects the error
+    params = { projectId: "123", mergeRequestId: 456, comment: "test" };
+    result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
+    expect(result.isError).toBe(true);
+    expect((result.content[0] as TextContent).text).toContain("GitLab API 错误：Cannot add comment");
   });
 });

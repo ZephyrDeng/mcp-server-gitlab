@@ -1,5 +1,6 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import dotenv from "dotenv";
+import { gitlabApiClient } from '../../utils/gitlabApiClientInstance'; // Import the client instance
 import { GitlabRawApiTool } from "../GitlabRawApiTool";
 import type { Context, ContentResult, TextContent } from 'fastmcp';
 
@@ -8,7 +9,16 @@ describe("GitlabRawApiTool", () => {
   const tool = GitlabRawApiTool;
   const mockContext = {} as Context<Record<string, unknown> | undefined>;
 
+  beforeEach(() => {
+    jest.restoreAllMocks(); // Restore mocks before each test
+  });
+
   it("should fetch projects list", async () => {
+     // Mock the apiRequest for this specific test
+    const mockProjects = [{ id: 1, name: "Project Alpha" }, { id: 2, name: "Project Beta" }];
+    jest.spyOn(gitlabApiClient, 'apiRequest').mockResolvedValue(mockProjects as any);
+    jest.spyOn(gitlabApiClient, 'isValidResponse').mockReturnValue(true); // Assume valid response for mock
+
     const input = {
       endpoint: "/projects",
       method: "GET" as const,
