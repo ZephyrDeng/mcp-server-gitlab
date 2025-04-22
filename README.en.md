@@ -43,6 +43,17 @@ bun run start
 ```env
 GITLAB_API_URL=https://your-gitlab-instance.com
 GITLAB_TOKEN=your_access_token
+
+# Optional: Provide a mapping from usernames to user IDs (JSON string)
+# This can reduce API calls, especially when referencing the same users frequently
+# Example: '{"username1": 123, "username2": 456}'
+GITLAB_USER_MAPPING={"username1": 123, "username2": 456}
+
+# Optional: Provide a mapping from project names to project IDs (JSON string)
+# Project IDs can be numbers or strings (e.g., 'group/project')
+# This can reduce API calls and ensure the correct project is used
+# Example: '{"project-name-a": 1001, "group/project-b": "group/project-b"}'
+GITLAB_PROJECT_MAPPING={"project-name-a": 1001, "group/project-b": "group/project-b"}
 ```
 
 ## Usage Examples

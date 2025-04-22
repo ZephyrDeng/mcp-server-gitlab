@@ -7,7 +7,7 @@ export const GitlabAcceptMRTool: Tool<Record<string, unknown> | undefined> = {
   name: "Gitlab Accept MR Tool",
   description: "接受并合并指定项目的合并请求，支持自定义合并选项。",
   parameters: z.object({
-    projectId: z.string().describe("项目 ID"),
+    projectId: z.union([z.string(), z.number()]).describe("项目 ID 或名称"),
     mergeRequestId: z.number().describe("合并请求 ID"),
     mergeOptions: z.object({
       mergeCommitMessage: z.string().optional(),
@@ -18,7 +18,7 @@ export const GitlabAcceptMRTool: Tool<Record<string, unknown> | undefined> = {
   }),
   async execute(args: unknown, context: Context<Record<string, unknown> | undefined>) {
     const typedArgs = args as {
-      projectId: string;
+      projectId: string | number;
       mergeRequestId: number;
       mergeOptions?: {
         mergeCommitMessage?: string;
@@ -28,12 +28,21 @@ export const GitlabAcceptMRTool: Tool<Record<string, unknown> | undefined> = {
       fields?: string[];
     };
     
-    const { projectId, mergeRequestId, mergeOptions, fields } = typedArgs;
-    const endpoint = `/projects/${encodeURIComponent(projectId)}/merge_requests/${mergeRequestId}/merge`;
-    
+    const { projectId: projectIdOrName, mergeRequestId, mergeOptions, fields } = typedArgs;
+
     try {
+      const resolvedProjectId = await gitlabApiClient.resolveProjectId(projectIdOrName);
+      if (!resolvedProjectId) {
+        throw new Error(`无法解析项目 ID 或名称：${projectIdOrName}`);
+      }
+
+      const endpoint = `/projects/${encodeURIComponent(String(resolvedProjectId))}/merge_requests/${mergeRequestId}/merge`;
       const response = await gitlabApiClient.apiRequest(endpoint, "PUT", undefined, mergeOptions);
-      
+
+      if (!gitlabApiClient.isValidResponse(response)) {
+        throw new Error(`GitLab API 错误：${response?.message || '未知错误'}`);
+      }
+
       if (fields) {
         const filteredResponse = filterResponseFields(response, fields);
         return {

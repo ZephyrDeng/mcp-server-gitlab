@@ -40,6 +40,17 @@ bun run start
 ```env
 GITLAB_API_URL=https://your-gitlab-instance.com
 GITLAB_TOKEN=your_access_token
+
+# 可选：提供用户名到用户 ID 的映射（JSON 字符串）
+# 这可以减少 API 调用次数，尤其是在频繁引用相同用户时
+# 示例：'{"username1": 123, "username2": 456}'
+GITLAB_USER_MAPPING={"username1": 123, "username2": 456}
+
+# 可选：提供项目名称到项目 ID 的映射（JSON 字符串）
+# 项目 ID 可以是数字或字符串（如 'group/project'）
+# 这可以减少 API 调用次数，并确保使用正确的项目
+# 示例：'{"project-name-a": 1001, "group/project-b": "group/project-b"}'
+GITLAB_PROJECT_MAPPING={"project-name-a": 1001, "group/project-b": "group/project-b"}
 ```
 
 ## 工具示例
