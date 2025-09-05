@@ -73,6 +73,6 @@ describe("GitlabCreateMRCommentTool", () => {
     params = { projectId: "123", mergeRequestId: 456, comment: "test" };
     result = await GitlabCreateMRCommentTool.execute(params, mockContext) as ContentResult;
     expect(result.isError).toBe(true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab API 错误：Cannot add comment");
+    expect((result.content[0] as TextContent).text).toContain("GitLab API error: Cannot add comment");
   });
 });

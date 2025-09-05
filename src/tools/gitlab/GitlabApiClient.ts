@@ -86,11 +86,11 @@ export class GitlabApiClient {
         } else if (statusCode === 403) {
           errorMessage = 'GitLab API 权限不足：您没有足够的权限执行此操作';
         } else if (statusCode === 404) {
-          errorMessage = `GitLab API 返回 404：${endpoint} 不存在、参数错误或权限不足`;
+          errorMessage = `GitLab API returned 404: ${endpoint} not found, parameter error or insufficient permissions`;
         } else if (statusCode === 429) {
           errorMessage = 'GitLab API 请求过于频繁：已达到速率限制，请稍后重试';
         } else if (statusCode >= 500) {
-          errorMessage = 'GitLab API 服务器错误：服务器暂时不可用或存在内部错误';
+          errorMessage = 'GitLab API server error: server temporarily unavailable or internal error';
         }
 
         return {
@@ -143,7 +143,7 @@ export class GitlabApiClient {
         this.logger.warn(`通过 API 未找到用户 ${usernameOrId}。`);
       } else if (!this.isValidResponse(response)) {
         // Only log error message if the response indicates an error
-        this.logger.error(`查询用户 ${usernameOrId} 时 API 出错：${(response as GitlabApiResponse)?.message || '未知错误'}`);
+        this.logger.error(`API error when querying user ${usernameOrId}: ${(response as GitlabApiResponse)?.message || 'Unknown error'}`);
       }
     }
 
@@ -195,7 +195,7 @@ export class GitlabApiClient {
         this.logger.warn(`通过 API 未找到项目 ${projectNameOrId}。`);
       } else if (!this.isValidResponse(response)) {
          // Only log error message if the response indicates an error
-        this.logger.error(`查询项目 ${projectNameOrId} 时 API 出错：${(response as GitlabApiResponse)?.message || '未知错误'}`);
+        this.logger.error(`API error when querying project ${projectNameOrId}: ${(response as GitlabApiResponse)?.message || 'Unknown error'}`);
       }
     }
 

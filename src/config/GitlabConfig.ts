@@ -40,10 +40,10 @@ export class GitlabConfig {
 
   private validate() {
     if (!this.privateToken) {
-      throw new Error("GitLab 配置错误：缺少访问令牌（privateToken），请设置环境变量 GITLAB_TOKEN 或通过参数传入");
+      throw new Error("GitLab configuration error: missing access token (privateToken), please set environment variable GITLAB_TOKEN or pass it as parameter");
     }
     if (!this.baseUrl) {
-      throw new Error("GitLab 配置错误：缺少 API 地址（baseUrl），请设置环境变量 GITLAB_API_URL 或通过参数传入");
+      throw new Error("GitLab configuration error: missing API URL (baseUrl), please set environment variable GITLAB_API_URL or pass it as parameter");
     }
   }
 }

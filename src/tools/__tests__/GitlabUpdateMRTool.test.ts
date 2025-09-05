@@ -100,6 +100,6 @@ describe("GitlabUpdateMRTool", () => {
     params = { projectId: "123", mergeRequestId: 456, title: "New Title" };
     result = await GitlabUpdateMRTool.execute(params, mockContext) as ContentResult;
     expect(result.isError).toBe(true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab API 错误：Invalid MR");
+    expect((result.content[0] as TextContent).text).toContain("GitLab API error: Invalid MR");
   });
 });

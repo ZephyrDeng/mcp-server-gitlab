@@ -122,6 +122,6 @@ describe("GitlabCreateMRTool", () => {
     params = { projectId: "123", sourceBranch: "f", targetBranch: "m", title: "t" };
     result = await GitlabCreateMRTool.execute(params, mockContext) as ContentResult;
     expect(result.isError).toBe(true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab API 错误：MR creation failed");
+    expect((result.content[0] as TextContent).text).toContain("GitLab API error: MR creation failed");
   });
 });

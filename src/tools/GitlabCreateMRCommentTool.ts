@@ -32,7 +32,7 @@ export const GitlabCreateMRCommentTool: Tool<Record<string, unknown> | undefined
       const response = await gitlabApiClient.apiRequest(endpoint, "POST", undefined, { body: comment });
 
       if (!gitlabApiClient.isValidResponse(response)) {
-        throw new Error(`GitLab API 错误：${response?.message || '未知错误'}`);
+        throw new Error(`GitLab API error: ${response?.message || 'Unknown error'}`);
       }
 
       if (fields) {
