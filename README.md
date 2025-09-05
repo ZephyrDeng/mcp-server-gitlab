@@ -27,6 +27,7 @@ A GitLab integration server built on the fastmcp framework, providing various Gi
 
 ## Quick Start
 
+### Stdio Mode (Default)
 ```bash
 # Install dependencies
 bun install
@@ -34,8 +35,23 @@ bun install
 # Build the project
 bun run build
 
-# Start the server
+# Start the server with stdio transport (default)
 bun run start
+```
+
+### HTTP Stream Mode (Server Deployment)
+```bash
+# Install dependencies
+bun install
+
+# Build the project
+bun run build
+
+# Start the server with HTTP stream transport
+MCP_TRANSPORT_TYPE=httpStream MCP_PORT=3000 bun run start
+
+# Or using command line flag
+bun dist/index.js --http-stream
 ```
 
 ## Environment Variables
@@ -54,11 +70,43 @@ GITLAB_USER_MAPPING={"username1": 123, "username2": 456}
 # This can reduce API calls and ensure the correct project is used
 # Example: '{"project-name-a": 1001, "group/project-b": "group/project-b"}'
 GITLAB_PROJECT_MAPPING={"project-name-a": 1001, "group/project-b": "group/project-b"}
+
+# MCP Transport Configuration (Optional)
+# Transport type: stdio (default) or httpStream  
+MCP_TRANSPORT_TYPE=stdio
+
+# HTTP Stream Configuration (Only used when MCP_TRANSPORT_TYPE=httpStream)
+# Server port (default: 3000)
+MCP_PORT=3000
+
+# API endpoint path (default: /mcp)
+MCP_ENDPOINT=/mcp
 ```
 
 ## Usage Examples
 
 See [USAGE.md](./USAGE.md) for detailed examples of each tool's parameters.
+
+## Transport Modes
+
+This server supports two transport modes:
+
+### 1. Stdio Transport (Default)
+- Best for local development and direct integration with MCP clients
+- Uses stdin/stdout for communication
+- No network configuration needed
+
+### 2. HTTP Stream Transport
+- Enables server deployment for remote access
+- Uses HTTP POST requests with streaming responses
+- Allows multiple clients to connect to the same server instance
+- Ideal for production deployments
+
+When using HTTP Stream mode, clients can connect to:
+```
+POST http://localhost:3000/mcp
+Content-Type: application/json
+```
 
 ## Project Structure
 
@@ -90,6 +138,7 @@ tsconfig.json
 
 ### Claude Desktop Client
 
+#### Stdio Mode (Default)
 Add to your config:
 
 ```json
@@ -98,6 +147,27 @@ Add to your config:
     "@zephyr-mcp/gitlab": {
       "command": "npx",
       "args": ["-y", "@zephyr-mcp/gitlab"]
+    }
+  }
+}
+```
+
+#### HTTP Stream Mode (Server Deployment)
+For remote server deployment, first start the server:
+
+```bash
+# On your server
+MCP_TRANSPORT_TYPE=httpStream MCP_PORT=3000 npx @zephyr-mcp/gitlab
+```
+
+Then configure Claude Desktop with HTTP transport:
+
+```json
+{
+  "mcpServers": {
+    "@zephyr-mcp/gitlab": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/client-cli", "http://your-server:3000/mcp"]
     }
   }
 }
@@ -117,6 +187,9 @@ Environment variables:
 
 - `GITLAB_API_URL`: Base URL of your GitLab API
 - `GITLAB_TOKEN`: Access token for GitLab API authentication
+- `MCP_TRANSPORT_TYPE`: Transport type (stdio/httpStream)
+- `MCP_PORT`: HTTP port for HTTP stream mode
+- `MCP_ENDPOINT`: HTTP endpoint path for HTTP stream mode
 
 ## Related Links
 
