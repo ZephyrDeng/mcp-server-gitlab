@@ -19,8 +19,8 @@ RUN bun install
 # Build the project
 RUN bun run build
 
-# Expose a port if your MCP server uses one (optional)
-# EXPOSE 8080
+# Expose the default MCP port for HTTP stream mode
+EXPOSE 3000
 
 # Start the MCP server
 CMD [ "node", "dist/index.js" ]

@@ -191,6 +191,71 @@ Environment variables:
 - `MCP_PORT`: HTTP port for HTTP stream mode
 - `MCP_ENDPOINT`: HTTP endpoint path for HTTP stream mode
 
+## Deployment
+
+### Docker Deployment
+
+The repository includes a Dockerfile for easy deployment:
+
+```bash
+# Build the Docker image
+docker build -t gitlab-mcp-server .
+
+# Run with environment variables
+docker run -d \
+  -p 3000:3000 \
+  -e GITLAB_API_URL=https://your-gitlab-instance.com \
+  -e GITLAB_TOKEN=your_access_token \
+  -e MCP_TRANSPORT_TYPE=httpStream \
+  -e MCP_PORT=3000 \
+  gitlab-mcp-server
+```
+
+### Manual Deployment
+
+```bash
+# Install dependencies and build
+npm install
+npm run build
+
+# Start the server in HTTP stream mode
+export GITLAB_API_URL=https://your-gitlab-instance.com
+export GITLAB_TOKEN=your_access_token
+export MCP_TRANSPORT_TYPE=httpStream
+export MCP_PORT=3000
+
+# Run the server
+node dist/index.js
+```
+
+### Process Manager (PM2)
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Create ecosystem file
+cat > ecosystem.config.js << EOF
+module.exports = {
+  apps: [{
+    name: 'gitlab-mcp-server',
+    script: 'dist/index.js',
+    env: {
+      GITLAB_API_URL: 'https://your-gitlab-instance.com',
+      GITLAB_TOKEN: 'your_access_token',
+      MCP_TRANSPORT_TYPE: 'httpStream',
+      MCP_PORT: 3000
+    }
+  }]
+}
+EOF
+
+# Start with PM2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
 ## Related Links
 
 - [fastmcp](https://github.com/punkpeye/fastmcp)
