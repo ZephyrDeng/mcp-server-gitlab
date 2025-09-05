@@ -29,7 +29,7 @@ const server = new FastMCP({
 registerTools(server)
 registerLogger()
 
-// 根据传输类型启动 MCP 服务器
+// Start MCP server according to transport type
 if (transportType === 'httpStream') {
   console.log(`Starting GitLab MCP Server with HTTP Stream transport on port ${port}, endpoint ${endpoint}`);
   server.start({
