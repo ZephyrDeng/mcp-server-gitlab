@@ -94,7 +94,7 @@ tsconfig.json
   "mcpServers": {
     "@zephyr-mcp/gitlab": {
       "command": "npx",
-      "args": ["-y", "@zephyr-mcp/gitlab@0.1.0"]
+      "args": ["-y", "@zephyr-mcp/gitlab@0.3.0"]
     }
   }
 }

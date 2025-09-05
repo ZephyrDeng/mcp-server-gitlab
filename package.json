@@ -1,6 +1,6 @@
 {
   "name": "@zephyr-mcp/gitlab",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供与 GitLab 实例的强大集成能力",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
     "fastmcp": "^3.15.2"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "^0.7.0",
+    "@modelcontextprotocol/inspector": "^0.16.6",
     "@smithery/cli": "latest",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.11.24",
