@@ -40,7 +40,7 @@ export const GitlabAcceptMRTool: Tool<Record<string, unknown> | undefined> = {
       const response = await gitlabApiClient.apiRequest(endpoint, "PUT", undefined, mergeOptions);
 
       if (!gitlabApiClient.isValidResponse(response)) {
-        throw new Error(`GitLab API 错误：${response?.message || '未知错误'}`);
+        throw new Error(`GitLab API error: ${response?.message || 'Unknown error'}`);
       }
 
       if (fields) {

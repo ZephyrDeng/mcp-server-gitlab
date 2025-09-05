@@ -73,7 +73,7 @@ describe("GitlabAcceptMRTool", () => {
     params = { projectId: "123", mergeRequestId: 456 };
     result = await tool.execute(params, mockContext) as ContentResult;
     expect(result.isError).toBe(true);
-    expect((result.content[0] as TextContent).text).toContain("GitLab API 错误：Merge failed");
+    expect((result.content[0] as TextContent).text).toContain("GitLab API error: Merge failed");
   });
 
   it("should handle 404 not found error", async () => {
