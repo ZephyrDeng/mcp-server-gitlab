@@ -12,14 +12,14 @@
   ],
   "scripts": {
     "clean": "rimraf dist",
-    "build": "bun run clean && tsc && chmod +x dist/index.js",
-    "postbuild": "bun scripts/postbuild.js",
+    "build": "npm run clean && tsc && chmod +x dist/index.js",
+    "postbuild": "node scripts/postbuild.js",
     "start": "bun run build && bun dist/index.js",
     "dev": "concurrently \"bun run watch\" \"nodemon --watch dist --delay 500ms --exec 'bun run start'\"",
     "preinspect": "bun run build",
     "inspect": "bun x @modelcontextprotocol/inspector bun dist/index.js",
     "deploy": "smithery deploy",
-    "test": "bun test",
+    "test": "jest",
     "test:watch": "jest --watch"
   },
   "dependencies": {
