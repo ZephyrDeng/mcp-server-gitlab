@@ -76,6 +76,10 @@ GITLAB_PROJECT_MAPPING={"project-name-a": 1001, "group/project-b": "group/projec
 MCP_TRANSPORT_TYPE=stdio
 
 # HTTP Stream Configuration (Only used when MCP_TRANSPORT_TYPE=httpStream)
+# Server binding address (default: 0.0.0.0 for httpStream, localhost for stdio)
+# For Docker deployments, use 0.0.0.0 to allow external access
+MCP_HOST=0.0.0.0
+
 # Server port (default: 3000)
 MCP_PORT=3000
 
@@ -188,6 +192,7 @@ Environment variables:
 - `GITLAB_API_URL`: Base URL of your GitLab API
 - `GITLAB_TOKEN`: Access token for GitLab API authentication
 - `MCP_TRANSPORT_TYPE`: Transport type (stdio/httpStream)
+- `MCP_HOST`: Server binding address for HTTP stream mode
 - `MCP_PORT`: HTTP port for HTTP stream mode
 - `MCP_ENDPOINT`: HTTP endpoint path for HTTP stream mode
 
@@ -207,9 +212,30 @@ docker run -d \
   -e GITLAB_API_URL=https://your-gitlab-instance.com \
   -e GITLAB_TOKEN=your_access_token \
   -e MCP_TRANSPORT_TYPE=httpStream \
+  -e MCP_HOST=0.0.0.0 \
   -e MCP_PORT=3000 \
   gitlab-mcp-server
 ```
+
+#### Docker Compose Example
+
+```yaml
+services:
+  gitlab-mcp:
+    image: node:22.14.0
+    container_name: gitlab-mcp
+    ports:
+      - "3000:3000"
+    environment:
+      - GITLAB_TOKEN=your_gitlab_token
+      - GITLAB_API_URL=your-gitlab-instance.com
+      - MCP_TRANSPORT_TYPE=httpStream
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=3000
+    command: npx -y @zephyr-mcp/gitlab@latest
+```
+
+**Important for Docker:** When running in Docker containers, make sure to set `MCP_HOST=0.0.0.0` to allow external access. The default value for httpStream transport is already `0.0.0.0`, but setting it explicitly ensures compatibility.
 
 ### Manual Deployment
 
