@@ -16,6 +16,7 @@ const transportType = process.env.MCP_TRANSPORT_TYPE ||
   (args.includes('--http-stream') ? 'httpStream' : 'stdio');
 const port = parseInt(process.env.MCP_PORT || '3000');
 const endpoint = process.env.MCP_ENDPOINT || '/mcp';
+const host = process.env.MCP_HOST || (transportType === 'httpStream' ? '0.0.0.0' : 'localhost');
 
 // Create FastMCP server instance
 const server = new FastMCP({
@@ -31,10 +32,11 @@ registerLogger()
 
 // Start MCP server according to transport type
 if (transportType === 'httpStream') {
-  console.log(`Starting GitLab MCP Server with HTTP Stream transport on port ${port}, endpoint ${endpoint}`);
+  console.log(`Starting GitLab MCP Server with HTTP Stream transport on ${host}:${port}, endpoint ${endpoint}`);
   server.start({
     transportType: "httpStream",
     httpStream: {
+      host: host,
       port: port,
       endpoint: endpoint as `/${string}`,
     },
