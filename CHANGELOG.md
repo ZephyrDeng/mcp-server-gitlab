@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-09-09
+
+### Added
+- MCP_HOST environment variable support for better Docker deployment compatibility
+- Enhanced Docker deployment documentation with MCP_HOST configuration
+
+### Fixed
+- Docker HTTP stream connection issues by adding configurable host binding
+- Server binding address configuration for containerized environments
+
+### Changed
+- Updated documentation for Docker deployment with MCP_HOST support
+- Improved transport test coverage for HTTP stream mode
+
 ## [0.3.0] - 2025-09-05
 
 ### Changed
