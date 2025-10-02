@@ -4,6 +4,7 @@ export interface GitlabConfigOptions {
   timeout?: number;
   userMapping?: { [username: string]: number };
   projectMapping?: { [projectName: string]: string | number };
+  allowEmptyBaseUrl?: boolean; // Allow empty baseUrl for HTTP stream mode
 }
 
 export class GitlabConfig {
@@ -21,7 +22,7 @@ export class GitlabConfig {
     this.projectMapping = this.loadMapping(options.projectMapping, process.env.GITLAB_PROJECT_MAPPING);
 
 
-    this.validate();
+    this.validate(options.allowEmptyBaseUrl);
   }
 
   private loadMapping<T>(optionValue?: T, envValue?: string): T {
@@ -38,8 +39,8 @@ export class GitlabConfig {
     return {} as T; // Return empty object if neither option nor env var is provided/valid
   }
 
-  private validate() {
-    if (!this.baseUrl) {
+  private validate(allowEmptyBaseUrl = false) {
+    if (!this.baseUrl && !allowEmptyBaseUrl) {
       throw new Error("GitLab configuration error: missing API URL (baseUrl), please set environment variable GITLAB_API_URL or pass it as parameter");
     }
     // 移除 privateToken 的验证，因为可以通过 Header 动态传入

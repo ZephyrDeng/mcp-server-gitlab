@@ -6,6 +6,7 @@ import { extractGitlabToken, extractGitlabBaseUrl } from "./typeGuards";
 const config = new GitlabConfig({
   baseUrl: process.env.GITLAB_API_URL,
   privateToken: process.env.GITLAB_TOKEN,
+  allowEmptyBaseUrl: process.env.MCP_TRANSPORT_TYPE === 'httpStream',
 });
 
 /**
@@ -22,6 +23,7 @@ export function createGitlabClientFromContext(context?: Context<Record<string, u
   const configWithDynamicValues = new GitlabConfig({
     baseUrl: baseUrl || config.baseUrl,
     privateToken: token || config.privateToken,
+    allowEmptyBaseUrl: process.env.MCP_TRANSPORT_TYPE === 'httpStream',
   });
 
   return new GitlabApiClient(configWithDynamicValues);
@@ -38,6 +40,7 @@ export function createGitlabApiClient(token?: string, baseUrl?: string): GitlabA
   const configWithDynamicValues = new GitlabConfig({
     baseUrl: baseUrl || config.baseUrl,
     privateToken: token || config.privateToken,
+    allowEmptyBaseUrl: process.env.MCP_TRANSPORT_TYPE === 'httpStream',
   });
 
   return new GitlabApiClient(configWithDynamicValues);

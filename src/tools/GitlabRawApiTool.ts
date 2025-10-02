@@ -22,23 +22,23 @@ export const GitlabRawApiTool: Tool<Record<string, unknown> | undefined> = {
       data?: Record<string, any>;
       fields?: string[];
     };
-    
+
     try {
       const client = createGitlabClientFromContext(context);
       const response = await client.apiRequest(
-        typedArgs.endpoint, 
-        typedArgs.method, 
-        typedArgs.params, 
+        typedArgs.endpoint,
+        typedArgs.method,
+        typedArgs.params,
         typedArgs.data
       );
-      
+
       if (typedArgs.fields) {
         const filteredResponse = filterResponseFields(response, typedArgs.fields);
         return {
           content: [{ type: "text", text: JSON.stringify(filteredResponse) }]
         } as ContentResult;
       }
-      
+
       return {
         content: [{ type: "text", text: JSON.stringify(response) }]
       } as ContentResult;
