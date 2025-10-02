@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createFieldsSchema } from "../utils/zodSchemas";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import { filterResponseFields } from "./gitlab/FieldFilterUtils";
 import type { Tool, ContentResult, Context } from 'fastmcp';
 
@@ -24,7 +24,8 @@ export const GitlabRawApiTool: Tool<Record<string, unknown> | undefined> = {
     };
     
     try {
-      const response = await gitlabApiClient.apiRequest(
+      const client = createGitlabClientFromContext(context);
+      const response = await client.apiRequest(
         typedArgs.endpoint, 
         typedArgs.method, 
         typedArgs.params, 

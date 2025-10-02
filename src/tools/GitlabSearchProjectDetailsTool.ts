@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createFieldsSchema } from "../utils/zodSchemas";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import type { Tool, ContentResult, Context } from 'fastmcp';
 import { filterResponseFields } from './gitlab/FieldFilterUtils';
 
@@ -18,7 +18,8 @@ export const GitlabSearchProjectDetailsTool: Tool<Record<string, unknown> | unde
     };
     
     try {
-      const response = await gitlabApiClient.apiRequest('/projects', 'GET', { search: typedArgs.projectName });
+      const client = createGitlabClientFromContext(context);
+      const response = await client.apiRequest('/projects', 'GET', { search: typedArgs.projectName });
       let result = response;
       
       if (typedArgs.fields) {

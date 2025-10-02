@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import { filterResponseFields } from "./gitlab/FieldFilterUtils";
 import type { Tool, ContentResult, Context } from 'fastmcp';
 
@@ -23,15 +23,16 @@ export const GitlabCreateMRCommentTool: Tool<Record<string, unknown> | undefined
     const { projectId: projectIdOrName, mergeRequestId, comment, fields } = typedArgs;
 
     try {
-      const resolvedProjectId = await gitlabApiClient.resolveProjectId(projectIdOrName);
+      const client = createGitlabClientFromContext(context);
+      const resolvedProjectId = await client.resolveProjectId(projectIdOrName);
       if (!resolvedProjectId) {
         throw new Error(`无法解析项目 ID 或名称：${projectIdOrName}`);
       }
 
       const endpoint = `/projects/${encodeURIComponent(String(resolvedProjectId))}/merge_requests/${mergeRequestId}/notes`;
-      const response = await gitlabApiClient.apiRequest(endpoint, "POST", undefined, { body: comment });
+      const response = await client.apiRequest(endpoint, "POST", undefined, { body: comment });
 
-      if (!gitlabApiClient.isValidResponse(response)) {
+      if (!client.isValidResponse(response)) {
         throw new Error(`GitLab API error: ${response?.message || 'Unknown error'}`);
       }
 

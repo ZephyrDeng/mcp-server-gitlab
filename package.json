@@ -4,6 +4,25 @@
   "description": "基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供与 GitLab 实例的强大集成能力",
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./tools": {
+      "types": "./dist/gitlab-tools-sdk.d.ts",
+      "import": "./dist/gitlab-tools-sdk.js",
+      "require": "./dist/gitlab-tools-sdk.js"
+    },
+    "./tools.js": {
+      "types": "./dist/gitlab-tools-sdk.d.ts",
+      "import": "./dist/gitlab-tools-sdk.js",
+      "require": "./dist/gitlab-tools-sdk.js"
+    }
+  },
   "bin": {
     "gitlab-mcp": "dist/index.js"
   },

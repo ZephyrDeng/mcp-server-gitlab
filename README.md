@@ -57,7 +57,11 @@ bun dist/index.js --http-stream
 ## Environment Variables
 
 ```env
+# Required for all modes (optional for httpStream mode - can be provided via HTTP headers)
 GITLAB_API_URL=https://your-gitlab-instance.com
+
+# Required for stdio mode, optional for httpStream mode
+# (can be provided via HTTP headers in httpStream mode)
 GITLAB_TOKEN=your_access_token
 
 # Optional: Provide a mapping from usernames to user IDs (JSON string)
@@ -89,7 +93,77 @@ MCP_ENDPOINT=/mcp
 
 ## Usage Examples
 
-See [USAGE.md](./USAGE.md) for detailed examples of each tool's parameters.
+### Direct HTTP API Usage
+
+You can also interact with the MCP server directly via HTTP requests:
+
+```bash
+# Example: Get user tasks using Bearer token
+curl -X POST http://localhost:3000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-gitlab-token" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "Gitlab Get User Tasks Tool",
+      "arguments": {
+        "taskFilterType": "ASSIGNED_MRS",
+        "fields": ["id", "title", "source_branch", "target_branch"]
+      }
+    }
+  }'
+```
+
+```bash
+# Example: Search projects using PRIVATE-TOKEN header
+curl -X POST http://localhost:3000/mcp \
+  -H "Content-Type: application/json" \
+  -H "PRIVATE-TOKEN: your-gitlab-token" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "Gitlab Search Project Details Tool",
+      "arguments": {
+        "projectName": "my-project",
+        "fields": ["id", "name", "description", "web_url"]
+      }
+    }
+  }'
+```
+
+```bash
+# Example: Use dynamic GitLab instance URL with Bearer token
+curl -X POST http://localhost:3000/mcp \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-gitlab-token" \
+  -H "x-gitlab-url: https://gitlab.company.com" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "Gitlab Get User Tasks Tool",
+      "arguments": {
+        "taskFilterType": "ASSIGNED_MRS",
+        "fields": ["id", "title", "source_branch", "target_branch"]
+      }
+    }
+  }'
+```
+
+### Tool Examples
+
+For detailed examples of each tool's parameters, see [USAGE.md](./USAGE.md).
+
+Key benefits of HTTP Stream mode with dynamic authentication:
+- **Multi-tenant support**: Single server instance can serve multiple users
+- **Security**: Each request uses its own authentication token and GitLab instance URL
+- **Flexibility**: Tokens and GitLab URLs can be configured per client without server restart
+- **Multi-instance support**: Connect to different GitLab instances from the same server
 
 ## Transport Modes
 
@@ -105,11 +179,79 @@ This server supports two transport modes:
 - Uses HTTP POST requests with streaming responses
 - Allows multiple clients to connect to the same server instance
 - Ideal for production deployments
+- **Supports dynamic token authentication via HTTP headers**
 
 When using HTTP Stream mode, clients can connect to:
 ```
 POST http://localhost:3000/mcp
 Content-Type: application/json
+```
+
+#### Authentication Methods
+
+HTTP Stream mode supports multiple ways to provide GitLab tokens and instance URLs:
+
+**Token Authentication:**
+
+**1. Bearer Token (Recommended):**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+Authorization: Bearer your-gitlab-access-token
+```
+
+**2. Private Token Header:**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+PRIVATE-TOKEN: your-gitlab-access-token
+```
+
+**3. Alternative Private Token Header:**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+private-token: your-gitlab-access-token
+```
+
+**4. Custom GitLab Token Header:**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+x-gitlab-token: your-gitlab-access-token
+```
+
+**GitLab Instance URL Configuration:**
+
+**1. GitLab URL Header (Recommended):**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+x-gitlab-url: https://gitlab.company.com
+```
+
+**2. Alternative GitLab URL Headers:**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+gitlab-url: https://gitlab.company.com
+```
+
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+gitlab-api-url: https://gitlab.company.com
+```
+
+**5. Fallback to Environment Variables:**
+If no token or URL is provided in headers, the server will fall back to the `GITLAB_TOKEN` and `GITLAB_API_URL` environment variables.
+
+**Complete Example:**
+```http
+POST http://localhost:3000/mcp
+Content-Type: application/json
+Authorization: Bearer your-gitlab-access-token
+x-gitlab-url: https://gitlab.company.com
 ```
 
 ## Project Structure
@@ -157,25 +299,76 @@ Add to your config:
 ```
 
 #### HTTP Stream Mode (Server Deployment)
-For remote server deployment, first start the server:
+
+**Server Setup:**
+First start the server (note that both `GITLAB_TOKEN` and `GITLAB_API_URL` are optional when using HTTP headers):
 
 ```bash
-# On your server
-MCP_TRANSPORT_TYPE=httpStream MCP_PORT=3000 npx @zephyr-mcp/gitlab
+# On your server - no token or URL required in env vars
+MCP_TRANSPORT_TYPE=httpStream MCP_PORT=3000 MCP_HOST=0.0.0.0 npx @zephyr-mcp/gitlab
+
+# Or with Docker
+docker run -d \
+  -p 3000:3000 \
+  -e MCP_TRANSPORT_TYPE=httpStream \
+  -e MCP_HOST=0.0.0.0 \
+  -e MCP_PORT=3000 \
+  gitlab-mcp-server
 ```
 
-Then configure Claude Desktop with HTTP transport:
+**Client Configuration:**
 
+Option 1: **With Bearer Token** (Recommended)
 ```json
 {
   "mcpServers": {
     "@zephyr-mcp/gitlab": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/client-cli", "http://your-server:3000/mcp"]
+      "args": [
+        "@modelcontextprotocol/client-cli",
+        "http://your-server:3000/mcp",
+        "--header", "Authorization: Bearer your-gitlab-access-token"
+      ]
     }
   }
 }
 ```
+
+Option 2: **With Private Token Header**
+```json
+{
+  "mcpServers": {
+    "@zephyr-mcp/gitlab": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/client-cli",
+        "http://your-server:3000/mcp",
+        "--header", "PRIVATE-TOKEN: your-gitlab-access-token"
+      ]
+    }
+  }
+}
+```
+
+Option 3: **With Dynamic GitLab URL and Token**
+```json
+{
+  "mcpServers": {
+    "@zephyr-mcp/gitlab": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/client-cli",
+        "http://your-server:3000/mcp",
+        "--header", "Authorization: Bearer your-gitlab-access-token",
+        "--header", "x-gitlab-url: https://gitlab.company.com"
+      ]
+    }
+  }
+}
+```
+
+**Multi-tenant Usage:**
+Each user can configure their own token and GitLab instance URL in their client configuration, allowing the same server instance to serve multiple users with different GitLab permissions and instances.
 
 ### Smithery
 
@@ -189,8 +382,8 @@ Or search "@zephyr-mcp/gitlab" in Smithery UI and add to your workspace.
 
 Environment variables:
 
-- `GITLAB_API_URL`: Base URL of your GitLab API
-- `GITLAB_TOKEN`: Access token for GitLab API authentication
+- `GITLAB_API_URL`: Base URL of your GitLab API (required for stdio mode, optional for httpStream mode - can be provided via HTTP headers)
+- `GITLAB_TOKEN`: Access token for GitLab API authentication (required for stdio mode, optional for httpStream mode - can be provided via HTTP headers)
 - `MCP_TRANSPORT_TYPE`: Transport type (stdio/httpStream)
 - `MCP_HOST`: Server binding address for HTTP stream mode
 - `MCP_PORT`: HTTP port for HTTP stream mode
@@ -206,11 +399,9 @@ The repository includes a Dockerfile for easy deployment:
 # Build the Docker image
 docker build -t gitlab-mcp-server .
 
-# Run with environment variables
+# Run with environment variables (both token and URL can be provided via HTTP headers)
 docker run -d \
   -p 3000:3000 \
-  -e GITLAB_API_URL=https://your-gitlab-instance.com \
-  -e GITLAB_TOKEN=your_access_token \
   -e MCP_TRANSPORT_TYPE=httpStream \
   -e MCP_HOST=0.0.0.0 \
   -e MCP_PORT=3000 \
@@ -227,11 +418,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GITLAB_TOKEN=your_gitlab_token
-      - GITLAB_API_URL=your-gitlab-instance.com
       - MCP_TRANSPORT_TYPE=httpStream
       - MCP_HOST=0.0.0.0
       - MCP_PORT=3000
+      # Both GITLAB_API_URL and GITLAB_TOKEN are optional when using HTTP headers
+      # - GITLAB_API_URL=https://your-gitlab-instance.com
+      # - GITLAB_TOKEN=your_gitlab_token
     command: npx -y @zephyr-mcp/gitlab@latest
 ```
 

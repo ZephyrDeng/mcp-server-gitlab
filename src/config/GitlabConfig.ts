@@ -39,11 +39,9 @@ export class GitlabConfig {
   }
 
   private validate() {
-    if (!this.privateToken) {
-      throw new Error("GitLab configuration error: missing access token (privateToken), please set environment variable GITLAB_TOKEN or pass it as parameter");
-    }
     if (!this.baseUrl) {
       throw new Error("GitLab configuration error: missing API URL (baseUrl), please set environment variable GITLAB_API_URL or pass it as parameter");
     }
+    // 移除 privateToken 的验证，因为可以通过 Header 动态传入
   }
 }

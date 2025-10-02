@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import { createFieldsSchema } from '../utils/zodSchemas'
 import type { Tool, ContentResult, Context } from 'fastmcp';
 import { filterResponseFields } from '../tools/gitlab/FieldFilterUtils'
@@ -18,7 +18,8 @@ export const GitlabSearchUserProjectsTool: Tool<Record<string, unknown> | undefi
     };
 
     try {
-      const users = await gitlabApiClient.apiRequest("/users", "GET", { search: typedArgs.username });
+      const client = createGitlabClientFromContext(context);
+      const users = await client.apiRequest("/users", "GET", { search: typedArgs.username });
       if (!Array.isArray(users) || users.length === 0) {
         return {
           content: [
@@ -32,7 +33,7 @@ export const GitlabSearchUserProjectsTool: Tool<Record<string, unknown> | undefi
       }
       
       const user = users[0];
-      const projects = await gitlabApiClient.apiRequest(`/users/${user.id}/projects`, "GET", {});
+      const projects = await client.apiRequest(`/users/${user.id}/projects`, "GET", {});
       const result = { user, projects };
 
       if (typedArgs.fields) {
