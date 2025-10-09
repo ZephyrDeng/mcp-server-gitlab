@@ -19,10 +19,27 @@ export function createGitlabClientFromContext(context?: Context<Record<string, u
   const token = extractGitlabToken(context?.session);
   const baseUrl = extractGitlabBaseUrl(context?.session);
 
+  // Only validate when neither context nor config has values
+  // This allows environment variables to be used as fallback
+  const finalToken = token || config.privateToken;
+  const finalBaseUrl = baseUrl || config.baseUrl;
+
+  if (!finalToken) {
+    throw new Error(
+      'GitLab token is required. Please provide it via HTTP headers (Authorization/PRIVATE-TOKEN/x-gitlab-token) or set GITLAB_TOKEN environment variable'
+    );
+  }
+
+  if (!finalBaseUrl && process.env.MCP_TRANSPORT_TYPE !== 'httpStream') {
+    throw new Error(
+      'GitLab API URL is required. Please provide it via HTTP headers (x-gitlab-url/gitlab-url/gitlab-api-url) or set GITLAB_API_URL environment variable'
+    );
+  }
+
   // Create config with dynamic values if provided
   const configWithDynamicValues = new GitlabConfig({
-    baseUrl: baseUrl || config.baseUrl,
-    privateToken: token || config.privateToken,
+    baseUrl: finalBaseUrl,
+    privateToken: finalToken,
     allowEmptyBaseUrl: process.env.MCP_TRANSPORT_TYPE === 'httpStream',
   });
 

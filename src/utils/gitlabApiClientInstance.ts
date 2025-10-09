@@ -1,2 +1,2 @@
-// 重新导出新的工厂函数以保持向后兼容性
+// Re-export new factory functions for backward compatibility
 export { createGitlabApiClient, gitlabApiClient } from "./gitlabClientFactory";

@@ -33,7 +33,7 @@ export class GitlabConfig {
       try {
         return JSON.parse(envValue);
       } catch (error) {
-        console.warn(`无法解析环境变量中的映射配置: ${envValue}`, error);
+        console.warn(`Unable to parse mapping configuration from environment variable: ${envValue}`, error);
       }
     }
     return {} as T; // Return empty object if neither option nor env var is provided/valid
@@ -43,6 +43,6 @@ export class GitlabConfig {
     if (!this.baseUrl && !allowEmptyBaseUrl) {
       throw new Error("GitLab configuration error: missing API URL (baseUrl), please set environment variable GITLAB_API_URL or pass it as parameter");
     }
-    // 移除 privateToken 的验证，因为可以通过 Header 动态传入
+    // Remove privateToken validation as it can be provided dynamically via headers
   }
 }

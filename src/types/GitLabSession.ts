@@ -18,6 +18,10 @@ export interface GitLabSession {
   userId?: string;
   /** Username */
   username?: string;
-  /** Index signature to satisfy FastMCPSessionAuth constraint */
-  [key: string]: unknown;
 }
+
+/**
+ * GitLab Session type with extra dynamic properties
+ * Uses index signature to satisfy FastMCPSessionAuth constraint while maintaining type safety
+ */
+export type GitLabSessionWithExtras = GitLabSession & Record<string, unknown>;
