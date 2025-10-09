@@ -4,6 +4,7 @@ export interface GitlabConfigOptions {
   timeout?: number;
   userMapping?: { [username: string]: number };
   projectMapping?: { [projectName: string]: string | number };
+  allowEmptyBaseUrl?: boolean; // Allow empty baseUrl for HTTP stream mode
 }
 
 export class GitlabConfig {
@@ -21,7 +22,7 @@ export class GitlabConfig {
     this.projectMapping = this.loadMapping(options.projectMapping, process.env.GITLAB_PROJECT_MAPPING);
 
 
-    this.validate();
+    this.validate(options.allowEmptyBaseUrl);
   }
 
   private loadMapping<T>(optionValue?: T, envValue?: string): T {
@@ -32,18 +33,16 @@ export class GitlabConfig {
       try {
         return JSON.parse(envValue);
       } catch (error) {
-        console.warn(`无法解析环境变量中的映射配置: ${envValue}`, error);
+        console.warn(`Unable to parse mapping configuration from environment variable: ${envValue}`, error);
       }
     }
     return {} as T; // Return empty object if neither option nor env var is provided/valid
   }
 
-  private validate() {
-    if (!this.privateToken) {
-      throw new Error("GitLab configuration error: missing access token (privateToken), please set environment variable GITLAB_TOKEN or pass it as parameter");
-    }
-    if (!this.baseUrl) {
+  private validate(allowEmptyBaseUrl = false) {
+    if (!this.baseUrl && !allowEmptyBaseUrl) {
       throw new Error("GitLab configuration error: missing API URL (baseUrl), please set environment variable GITLAB_API_URL or pass it as parameter");
     }
+    // Remove privateToken validation as it can be provided dynamically via headers
   }
 }

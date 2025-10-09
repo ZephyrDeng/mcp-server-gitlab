@@ -9,6 +9,7 @@ import { FastMCP } from "fastmcp";
 
 // GitLab related tools
 import { registerLogger, registerTools } from "./tools";
+import { GitLabSessionWithExtras } from "./types/GitLabSession";
 
 // Parse command line arguments and environment variables
 const args = process.argv.slice(2);
@@ -19,9 +20,50 @@ const endpoint = process.env.MCP_ENDPOINT || '/mcp';
 const host = process.env.MCP_HOST || (transportType === 'httpStream' ? '0.0.0.0' : 'localhost');
 
 // Create FastMCP server instance
-const server = new FastMCP({
+const server = new FastMCP<GitLabSessionWithExtras>({
   name: "GitLab MCP Server",
   version: "1.0.0",
+  authenticate: async (request) => {
+    // Extract GitLab token from HTTP headers
+    const tokenHeader = request.headers["authorization"]?.replace('Bearer ', '') ||
+                       request.headers["private-token"] ||
+                       request.headers["PRIVATE-TOKEN"] ||
+                       request.headers["x-gitlab-token"];
+
+    // Extract GitLab base URL from HTTP headers
+    const baseUrlHeader = request.headers["x-gitlab-url"] ||
+                          request.headers["gitlab-url"] ||
+                          request.headers["gitlab-api-url"];
+
+    // Ensure token and base URL are string types
+    const token = Array.isArray(tokenHeader) ? tokenHeader[0] : tokenHeader;
+    const baseUrl = Array.isArray(baseUrlHeader) ? baseUrlHeader[0] : baseUrlHeader;
+
+    // Validate token format if provided
+    if (token && typeof token === 'string') {
+      // GitLab tokens are typically at least 20 characters
+      if (token.length < 20) {
+        throw new Error('Invalid GitLab token format: token must be at least 20 characters');
+      }
+    }
+
+    // Validate URL format if provided
+    if (baseUrl && typeof baseUrl === 'string') {
+      try {
+        new URL(baseUrl);
+      } catch {
+        throw new Error('Invalid GitLab API URL format: must be a valid URL');
+      }
+    }
+
+    // Return session data that will be available in context.session
+    return {
+      gitlabToken: token,
+      gitlabBaseUrl: baseUrl,
+      headers: request.headers,
+      authenticatedAt: new Date().toISOString(),
+    };
+  },
 });
 
 // Register demo resources: all GitLab projects

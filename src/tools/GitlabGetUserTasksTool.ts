@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createFieldsSchema } from "../utils/zodSchemas";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import { filterResponseFields } from "./gitlab/FieldFilterUtils";
 import type { Tool, ContentResult, Context } from 'fastmcp';
 
@@ -60,7 +60,8 @@ export const GitlabGetUserTasksTool: Tool<Record<string, unknown> | undefined> =
           break;
       }
 
-      const response = await gitlabApiClient.apiRequest("/merge_requests", "GET", params);
+      const client = createGitlabClientFromContext(context);
+      const response = await client.apiRequest("/merge_requests", "GET", params);
       if (typedArgs.fields) {
         const filteredResponse = filterResponseFields(response, typedArgs.fields);
         return {

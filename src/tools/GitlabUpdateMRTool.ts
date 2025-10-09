@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { gitlabApiClient } from "../utils/gitlabApiClientInstance";
+import { createGitlabClientFromContext } from "../utils/gitlabClientFactory";
 import { filterResponseFields } from "./gitlab/FieldFilterUtils";
 import type { Tool, ContentResult, Context } from "fastmcp";
 
@@ -31,7 +31,8 @@ export const GitlabUpdateMRTool: Tool<Record<string, unknown> | undefined> = {
     const { projectId: projectIdOrName, mergeRequestId, assigneeId: assigneeIdOrName, reviewerIds: reviewerIdsOrNames, title, description, labels, fields } = typedArgs;
 
     try {
-      const resolvedProjectId = await gitlabApiClient.resolveProjectId(projectIdOrName);
+      const client = createGitlabClientFromContext(context);
+      const resolvedProjectId = await client.resolveProjectId(projectIdOrName);
       if (!resolvedProjectId) {
         throw new Error(`无法解析项目 ID 或名称：${projectIdOrName}`);
       }
@@ -42,7 +43,7 @@ export const GitlabUpdateMRTool: Tool<Record<string, unknown> | undefined> = {
         if (assigneeIdOrName === 0 || assigneeIdOrName === "") {
             resolvedAssigneeId = null;
         } else {
-            const resolved = await gitlabApiClient.resolveUserId(assigneeIdOrName);
+            const resolved = await client.resolveUserId(assigneeIdOrName);
             if (resolved) {
                 resolvedAssigneeId = resolved;
             } else {
@@ -58,7 +59,7 @@ export const GitlabUpdateMRTool: Tool<Record<string, unknown> | undefined> = {
           if (reviewerIdsOrNames.length === 0) {
               resolvedReviewerIds = [];
           } else {
-              const reviewerPromises = reviewerIdsOrNames.map(idOrName => gitlabApiClient.resolveUserId(idOrName));
+              const reviewerPromises = reviewerIdsOrNames.map(idOrName => client.resolveUserId(idOrName));
               const results = await Promise.all(reviewerPromises);
               resolvedReviewerIds = results.filter((id): id is number => {
                   if (id === null) {
@@ -89,9 +90,9 @@ export const GitlabUpdateMRTool: Tool<Record<string, unknown> | undefined> = {
       }
 
 
-      const response = await gitlabApiClient.apiRequest(endpoint, "PUT", undefined, updateData);
+      const response = await client.apiRequest(endpoint, "PUT", undefined, updateData);
 
-       if (!gitlabApiClient.isValidResponse(response)) {
+       if (!client.isValidResponse(response)) {
         throw new Error(`GitLab API error: ${response?.message || 'Unknown error'}`);
       }
 
