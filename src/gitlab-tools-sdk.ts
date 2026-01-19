@@ -1,7 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { FastMCP, Tool } from "fastmcp";
 
-
 import { gitlabApiClient } from "./utils/gitlabApiClientInstance";
 import { GitlabAcceptMRTool } from "./tools/GitlabAcceptMRTool";
 import { GitlabCreateMRCommentTool } from "./tools/GitlabCreateMRCommentTool";
@@ -88,7 +87,10 @@ const fastmcpTools = [
  *
  * @internal
  */
-function shouldRegisterTool(toolName: GitLabToolName, filter?: GitLabToolFilterOptions): boolean {
+function shouldRegisterTool(
+  toolName: GitLabToolName,
+  filter?: GitLabToolFilterOptions,
+): boolean {
   if (!filter) {
     return true;
   }
@@ -130,8 +132,11 @@ function shouldRegisterTool(toolName: GitLabToolName, filter?: GitLabToolFilterO
  *
  * @public
  */
-export function registerGitLabToolsForFastMCP(server: FastMCP, options: GitLabToolsRegistryOptions = {}) {
-  const { enableLogger = process.env.ENABLE_LOGGER === 'true' } = options;
+export function registerGitLabToolsForFastMCP(
+  server: FastMCP,
+  options: GitLabToolsRegistryOptions = {},
+) {
+  const { enableLogger = process.env.ENABLE_LOGGER === "true" } = options;
 
   // Configure logger if enabled
   if (enableLogger) {
@@ -139,9 +144,12 @@ export function registerGitLabToolsForFastMCP(server: FastMCP, options: GitLabTo
   }
 
   // Register tools based on filter options
-  fastmcpTools.forEach(tool => {
-    const standardizedName = toolNameMapping[tool.name as keyof typeof toolNameMapping];
-    if (shouldRegisterTool(standardizedName as GitLabToolName, options.toolFilter)) {
+  fastmcpTools.forEach((tool) => {
+    const standardizedName =
+      toolNameMapping[tool.name as keyof typeof toolNameMapping];
+    if (
+      shouldRegisterTool(standardizedName as GitLabToolName, options.toolFilter)
+    ) {
       // GitLabTool is now fully compatible with FastMCP's base type, can be registered directly
       server.addTool(tool);
     }
@@ -178,8 +186,11 @@ export function registerGitLabToolsForFastMCP(server: FastMCP, options: GitLabTo
  *
  * @public
  */
-export function registerGitLabToolsForMcpSDK(server: McpServer, options: GitLabToolsRegistryOptions = {}) {
-  const { enableLogger = process.env.ENABLE_LOGGER === 'true' } = options;
+export function registerGitLabToolsForMcpSDK(
+  server: McpServer,
+  options: GitLabToolsRegistryOptions = {},
+) {
+  const { enableLogger = process.env.ENABLE_LOGGER === "true" } = options;
 
   // Configure logger if enabled
   if (enableLogger) {
@@ -187,12 +198,15 @@ export function registerGitLabToolsForMcpSDK(server: McpServer, options: GitLabT
   }
 
   // Convert fastmcp tools to MCP SDK format
-  fastmcpTools.forEach(tool => {
-    const standardizedName = toolNameMapping[tool.name as keyof typeof toolNameMapping];
-    if (shouldRegisterTool(standardizedName as GitLabToolName, options.toolFilter)) {
+  fastmcpTools.forEach((tool) => {
+    const standardizedName =
+      toolNameMapping[tool.name as keyof typeof toolNameMapping];
+    if (
+      shouldRegisterTool(standardizedName as GitLabToolName, options.toolFilter)
+    ) {
       server.tool(
         tool.name,
-        tool.description || '',
+        tool.description || "",
         tool.parameters || {},
         async (params) => {
           // fastmcp tools return ContentResult, convert to MCP SDK format
@@ -207,23 +221,38 @@ export function registerGitLabToolsForMcpSDK(server: McpServer, options: GitLabT
             reportProgress: async () => {},
             session: undefined,
             streamContent: async () => {},
+            client: undefined as any,
           };
           const result = await tool.execute(params, context);
 
           // Convert fastmcp ContentResult to MCP SDK format
-          if (typeof result === 'object' && result !== null && 'isError' in result && result.isError) {
-            const errorResult = result as { isError: boolean; content: Array<{ type: string; text: string }> };
+          if (
+            typeof result === "object" &&
+            result !== null &&
+            "isError" in result &&
+            result.isError
+          ) {
+            const errorResult = result as {
+              isError: boolean;
+              content: Array<{ type: string; text: string }>;
+            };
             throw new Error(
-              errorResult.content?.[0]?.type === 'text'
+              errorResult.content?.[0]?.type === "text"
                 ? errorResult.content[0].text
-                : 'Unknown error'
+                : "Unknown error",
             );
           }
 
           // Return the result in MCP SDK format
-          if (typeof result === 'object' && result !== null && 'content' in result) {
-            const contentResult = result as { content: Array<{ type: string; text: string }> };
-            if (contentResult.content?.[0]?.type === 'text') {
+          if (
+            typeof result === "object" &&
+            result !== null &&
+            "content" in result
+          ) {
+            const contentResult = result as {
+              content: Array<{ type: string; text: string }>;
+            };
+            if (contentResult.content?.[0]?.type === "text") {
               try {
                 return JSON.parse(contentResult.content[0].text);
               } catch {
@@ -233,12 +262,11 @@ export function registerGitLabToolsForMcpSDK(server: McpServer, options: GitLabT
           }
 
           return result;
-        }
+        },
       );
     }
   });
 }
-
 
 /**
  * Get all available GitLab tool names.

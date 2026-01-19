@@ -4,3 +4,4 @@ dist
 .cache/
 
 .roo/
+.mcp.json

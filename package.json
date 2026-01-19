@@ -1,6 +1,6 @@
 {
   "name": "@zephyr-mcp/gitlab",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "基于 Model Context Protocol (MCP) 框架构建的 GitLab 集成服务器，提供与 GitLab 实例的强大集成能力",
   "type": "module",
   "main": "dist/index.js",
@@ -31,12 +31,12 @@
   ],
   "scripts": {
     "clean": "rimraf dist",
-    "build": "npm run clean && tsc && chmod +x dist/index.js",
-    "postbuild": "node scripts/postbuild.js",
-    "start": "bun run build && bun dist/index.js",
-    "dev": "concurrently \"bun run watch\" \"nodemon --watch dist --delay 500ms --exec 'bun run start'\"",
-    "preinspect": "bun run build",
-    "inspect": "bun x @modelcontextprotocol/inspector bun dist/index.js",
+    "build": "tsup && chmod +x dist/index.js",
+    "build:tsc": "npm run clean && tsc && chmod +x dist/index.js",
+    "start": "npm run build && node dist/index.js",
+    "dev": "tsup --watch",
+    "preinspect": "npm run build",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
     "deploy": "smithery deploy",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -44,7 +44,7 @@
   "dependencies": {
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
-    "fastmcp": "^3.15.2"
+    "fastmcp": "^3.27.0"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "^0.16.6",
@@ -56,6 +56,7 @@
     "nodemon": "^3.1.9",
     "rimraf": "^6.0.1",
     "ts-jest": "^29.3.1",
+    "tsup": "^8.5.1",
     "typescript": "^5.3.3"
   },
   "engines": {
